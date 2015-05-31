@@ -22,9 +22,8 @@ public class MainActivity extends ActionBarActivity {
 				new OnClickListener() {
 					@Override
 					public void onClick(View v) {
-						// simulateSuccessProgress(mProgress);
-						// mProgress.setProgress(20);
-						mProgress.smoothToProgress(50);
+						// mProgress.setInstantProgress(20);
+						mProgress.setProgress(100);
 					}
 				});
 	}
@@ -43,19 +42,4 @@ public class MainActivity extends ActionBarActivity {
 		}
 		return super.onOptionsItemSelected(item);
 	}
-
-	// private void simulateSuccessProgress(final CircularProgress cp) {
-	// ValueAnimator widthAnimation = ValueAnimator.ofInt(1, 100);
-	// widthAnimation.setDuration(1500);
-	// widthAnimation.setInterpolator(new AccelerateDecelerateInterpolator());
-	// widthAnimation
-	// .addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-	// @Override
-	// public void onAnimationUpdate(ValueAnimator animation) {
-	// Integer value = (Integer) animation.getAnimatedValue();
-	// cp.setProgress(value);
-	// }
-	// });
-	// widthAnimation.start();
-	// }
 }

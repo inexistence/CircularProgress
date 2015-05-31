@@ -65,6 +65,7 @@ public class CircularProgress extends View {
 	private void init(Context context, AttributeSet attributeSet) {
 		mMaxProgress = 100;
 		mProgress = 0;
+		mPaddingProgress = 0;
 		initAttributes(context, attributeSet);
 	}
 
@@ -76,12 +77,12 @@ public class CircularProgress extends View {
 		}
 
 		try {
-			mPaddingProgress = attr.getDimensionPixelSize(
-					R.styleable.CircularProgress_padding_progress, 0);
+//			mPaddingProgress = attr.getDimensionPixelSize(
+//					R.styleable.CircularProgress_padding_progress, 0);
 			mStrokeWidth = attr.getDimensionPixelSize(
 					R.styleable.CircularProgress_stroke_width, 4);
-			mSize = attr.getDimensionPixelSize(
-					R.styleable.CircularProgress_size, 64);
+//			mSize = attr.getDimensionPixelSize(
+//					R.styleable.CircularProgress_size, 64);
 			mIndeterminateProgressMode = attr.getBoolean(
 					R.styleable.CircularProgress_indeterminate, false);
 
@@ -101,7 +102,7 @@ public class CircularProgress extends View {
 					.getDrawable(R.drawable.background).mutate();
 			background.setStroke(mStrokeWidth, mColorIndicatorBackground);
 			background.setColor(mColorProgress);
-			background.setCornerRadius(mSize / 2);
+//			background.setCornerRadius(mSize / 2);
 			setBackgroundCompat(background);
 		} finally {
 			attr.recycle();
@@ -109,23 +110,60 @@ public class CircularProgress extends View {
 
 	}
 
-	public void setProgress(int progress) {
+	@Override
+	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+		int width = MeasureSpec.getSize(widthMeasureSpec);
+		int height = MeasureSpec.getSize(heightMeasureSpec);
+
+		mSize = width < height ? width : height;
+		if (background != null){
+			background.setCornerRadius(mSize / 2);
+		}
+		
+		int sizeSpec = MeasureSpec.makeMeasureSpec(mSize,
+				MeasureSpec.EXACTLY);
+		
+		super.onMeasure(sizeSpec, sizeSpec);
+	}
+
+	/**
+	 * instantly move to that value
+	 * 
+	 * @param progress
+	 */
+	public void setInstantProgress(int progress) {
 		mProgress = progress;
 		invalidate();
 	}
 
-	private long DEFAULT_ANIM_DURATION = 1500;
-	private Animator mAnimator;
-
-	public void smoothToProgress(int progress) {
-		this.smoothToProgress(progress, DEFAULT_ANIM_DURATION);
+	public int getProgress() {
+		return mProgress;
 	}
 
-	public void smoothToProgress(int progress, long duration) {
+	private long DEFAULT_ANIM_SPEED = 15;
+	private Animator mAnimator;
+
+	/**
+	 * smoothly animate to that value
+	 * 
+	 * @param progress
+	 */
+	public void setProgress(int progress) {
+		this.setProgress(progress, DEFAULT_ANIM_SPEED);
+	}
+
+	/**
+	 * smoothly animate to that value
+	 * 
+	 * @param progress
+	 * @param duration
+	 */
+	public void setProgress(int progress, long speed) {
 		if (mAnimator != null) {
 			mAnimator.cancel();
 			mAnimator = null;
 		}
+		long duration = speed*Math.abs(progress-mProgress);
 		ValueAnimator progressAnimation = ValueAnimator.ofInt(this.mProgress,
 				progress);
 		progressAnimation.setDuration(duration);
@@ -136,7 +174,7 @@ public class CircularProgress extends View {
 					@Override
 					public void onAnimationUpdate(ValueAnimator animation) {
 						Integer value = (Integer) animation.getAnimatedValue();
-						CircularProgress.this.setProgress(value);
+						CircularProgress.this.setInstantProgress(value);
 					}
 				});
 		mAnimator = progressAnimation;
