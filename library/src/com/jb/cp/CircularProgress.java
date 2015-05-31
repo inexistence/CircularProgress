@@ -140,7 +140,7 @@ public class CircularProgress extends View {
 		return mProgress;
 	}
 
-	private long DEFAULT_ANIM_SPEED = 15;
+	private final long DEFAULT_ANIM_SPEED = 15;
 	private Animator mAnimator;
 
 	/**
