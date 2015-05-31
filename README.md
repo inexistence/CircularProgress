@@ -24,7 +24,7 @@ You can create circular progress in xml like this(remeber to add xmlns:app="http
 		
 ```
 
-**NOTE**:layout_height and layout_width should be same size.
+**NOTE** : layout_height and layout_width should be same size.
 
 And here are all the attributes
 ```xml
@@ -49,10 +49,10 @@ You have two methods for setting the progress:
 
 ```java
 
-//Sets the value, and the circular progress will smoothly animate to that value with the speed.
+// Sets the value,
+// and the circular progress will smoothly animate to that value with the speed.
 
 setProgress(int value);
-
 setProgress(int value, long speed);
 
 ```
@@ -60,6 +60,6 @@ setProgress(int value, long speed);
 ```java
 
 //Sets the value, and the circular progress will instantly move to that value.
-circularProgress.setInstantProgress(float value)
+circularProgress.setInstantProgress(int value)
 
 ```
