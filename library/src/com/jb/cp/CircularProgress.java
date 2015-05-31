@@ -1,5 +1,7 @@
 package com.jb.cp;
 
+import android.animation.Animator;
+import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -7,8 +9,11 @@ import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Build;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.view.View;
+import android.view.animation.AccelerateDecelerateInterpolator;
 
 import com.jb.circular_progress.R;
 
@@ -17,6 +22,9 @@ public class CircularProgress extends View {
 	private GradientDrawable background;
 	// progress
 	private CircularProgressDrawable mProgressDrawable;
+	private CircularAnimatedDrawable mAnimatedDrawable;
+
+	private boolean mIndeterminateProgressMode;
 
 	private int mPaddingProgress;
 	private int mStrokeWidth;
@@ -54,15 +62,6 @@ public class CircularProgress extends View {
 		init(context, null);
 	}
 
-	public void setProgress(int progress) {
-		mProgress = progress;
-		postInvalidate();
-	}
-	
-	public void smoothToProgress(int progress){
-		//TODO
-	}
-
 	private void init(Context context, AttributeSet attributeSet) {
 		mMaxProgress = 100;
 		mProgress = 0;
@@ -83,6 +82,8 @@ public class CircularProgress extends View {
 					R.styleable.CircularProgress_stroke_width, 4);
 			mSize = attr.getDimensionPixelSize(
 					R.styleable.CircularProgress_size, 64);
+			mIndeterminateProgressMode = attr.getBoolean(
+					R.styleable.CircularProgress_indeterminate, false);
 
 			int blue = getColor(R.color.blue);
 			int white = getColor(R.color.white);
@@ -108,6 +109,40 @@ public class CircularProgress extends View {
 
 	}
 
+	public void setProgress(int progress) {
+		mProgress = progress;
+		invalidate();
+	}
+
+	private long DEFAULT_ANIM_DURATION = 1500;
+	private Animator mAnimator;
+
+	public void smoothToProgress(int progress) {
+		this.smoothToProgress(progress, DEFAULT_ANIM_DURATION);
+	}
+
+	public void smoothToProgress(int progress, long duration) {
+		if (mAnimator != null) {
+			mAnimator.cancel();
+			mAnimator = null;
+		}
+		ValueAnimator progressAnimation = ValueAnimator.ofInt(this.mProgress,
+				progress);
+		progressAnimation.setDuration(duration);
+		progressAnimation
+				.setInterpolator(new AccelerateDecelerateInterpolator());
+		progressAnimation
+				.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+					@Override
+					public void onAnimationUpdate(ValueAnimator animation) {
+						Integer value = (Integer) animation.getAnimatedValue();
+						CircularProgress.this.setProgress(value);
+					}
+				});
+		mAnimator = progressAnimation;
+		progressAnimation.start();
+	}
+
 	/**
 	 * Set the View's background. Masks the API changes made in Jelly Bean.
 	 */
@@ -119,6 +154,14 @@ public class CircularProgress extends View {
 		} else {
 			setBackgroundDrawable(drawable);
 		}
+	}
+
+	public boolean isIndeterminateProgressMode() {
+		return mIndeterminateProgressMode;
+	}
+
+	public void setIndeterminateProgressMode(boolean indeterminateProgressMode) {
+		mIndeterminateProgressMode = indeterminateProgressMode;
 	}
 
 	protected int getColor(int id) {
@@ -133,7 +176,11 @@ public class CircularProgress extends View {
 	@Override
 	protected void onDraw(Canvas canvas) {
 		super.onDraw(canvas);
-		drawProgress(canvas);
+		if (mIndeterminateProgressMode) {
+			drawIndeterminateProgress(canvas);
+		} else {
+			drawProgress(canvas);
+		}
 	}
 
 	private void drawProgress(Canvas canvas) {
@@ -149,6 +196,87 @@ public class CircularProgress extends View {
 		float sweepAngle = (360f / mMaxProgress) * mProgress;
 		mProgressDrawable.setSweepAngle(sweepAngle);
 		mProgressDrawable.draw(canvas);
+	}
+
+	private void drawIndeterminateProgress(Canvas canvas) {
+		if (mAnimatedDrawable == null) {
+			int offset = (getWidth() - getHeight()) / 2;
+			mAnimatedDrawable = new CircularAnimatedDrawable(mColorIndicator,
+					mStrokeWidth);
+			int left = offset + mPaddingProgress;
+			int right = getWidth() - offset - mPaddingProgress;
+			int bottom = getHeight() - mPaddingProgress;
+			int top = mPaddingProgress;
+			mAnimatedDrawable.setBounds(left, top, right, bottom);
+			mAnimatedDrawable.setCallback(this);
+			mAnimatedDrawable.start();
+		} else {
+			mAnimatedDrawable.draw(canvas);
+		}
+	}
+
+	@Override
+	protected boolean verifyDrawable(Drawable who) {
+		return who == mAnimatedDrawable || super.verifyDrawable(who);
+	}
+
+	@Override
+	public Parcelable onSaveInstanceState() {
+		Parcelable superState = super.onSaveInstanceState();
+		SavedState savedState = new SavedState(superState);
+		savedState.mProgress = mProgress;
+		savedState.mIndeterminateProgressMode = mIndeterminateProgressMode;
+
+		return savedState;
+	}
+
+	@Override
+	public void onRestoreInstanceState(Parcelable state) {
+		if (state instanceof SavedState) {
+			SavedState savedState = (SavedState) state;
+			mProgress = savedState.mProgress;
+			mIndeterminateProgressMode = savedState.mIndeterminateProgressMode;
+			super.onRestoreInstanceState(savedState.getSuperState());
+			setProgress(mProgress);
+		} else {
+			super.onRestoreInstanceState(state);
+		}
+	}
+
+	static class SavedState extends BaseSavedState {
+
+		private boolean mIndeterminateProgressMode;
+		private int mProgress;
+
+		public SavedState(Parcelable parcel) {
+			super(parcel);
+		}
+
+		private SavedState(Parcel in) {
+			super(in);
+			mProgress = in.readInt();
+			mIndeterminateProgressMode = in.readInt() == 1;
+		}
+
+		@Override
+		public void writeToParcel(Parcel out, int flags) {
+			super.writeToParcel(out, flags);
+			out.writeInt(mProgress);
+			out.writeInt(mIndeterminateProgressMode ? 1 : 0);
+		}
+
+		public static final Creator<SavedState> CREATOR = new Creator<SavedState>() {
+
+			@Override
+			public SavedState createFromParcel(Parcel in) {
+				return new SavedState(in);
+			}
+
+			@Override
+			public SavedState[] newArray(int size) {
+				return new SavedState[size];
+			}
+		};
 	}
 
 }

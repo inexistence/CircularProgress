@@ -1,13 +1,11 @@
 package com.jb.circular_progress.sample;
 
-import android.animation.ValueAnimator;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.animation.AccelerateDecelerateInterpolator;
 
 import com.jb.cp.CircularProgress;
 
@@ -24,7 +22,9 @@ public class MainActivity extends ActionBarActivity {
 				new OnClickListener() {
 					@Override
 					public void onClick(View v) {
-						simulateSuccessProgress(mProgress);
+						// simulateSuccessProgress(mProgress);
+						// mProgress.setProgress(20);
+						mProgress.smoothToProgress(50);
 					}
 				});
 	}
@@ -44,18 +44,18 @@ public class MainActivity extends ActionBarActivity {
 		return super.onOptionsItemSelected(item);
 	}
 
-	private void simulateSuccessProgress(final CircularProgress cp) {
-		ValueAnimator widthAnimation = ValueAnimator.ofInt(1, 100);
-		widthAnimation.setDuration(1500);
-		widthAnimation.setInterpolator(new AccelerateDecelerateInterpolator());
-		widthAnimation
-				.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-					@Override
-					public void onAnimationUpdate(ValueAnimator animation) {
-						Integer value = (Integer) animation.getAnimatedValue();
-						cp.setProgress(value);
-					}
-				});
-		widthAnimation.start();
-	}
+	// private void simulateSuccessProgress(final CircularProgress cp) {
+	// ValueAnimator widthAnimation = ValueAnimator.ofInt(1, 100);
+	// widthAnimation.setDuration(1500);
+	// widthAnimation.setInterpolator(new AccelerateDecelerateInterpolator());
+	// widthAnimation
+	// .addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+	// @Override
+	// public void onAnimationUpdate(ValueAnimator animation) {
+	// Integer value = (Integer) animation.getAnimatedValue();
+	// cp.setProgress(value);
+	// }
+	// });
+	// widthAnimation.start();
+	// }
 }
