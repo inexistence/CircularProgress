@@ -1,0 +1,11 @@
+<resources>
+    <declare-styleable name="CircularProgress">
+        <attr name="color_progress" format="color"/>
+        <attr name="color_indicator" format="color"/>
+        <attr name="color_indicator_background" format="color"/>
+        <attr name="stroke_width" format="dimension"/>
+        <attr name="padding_progress" format="dimension"/>
+        <attr name="size" format="dimension"/>
+    </declare-styleable>
+
+</resources>
