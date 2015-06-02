@@ -77,12 +77,12 @@ public class CircularProgress extends View {
 		}
 
 		try {
-//			mPaddingProgress = attr.getDimensionPixelSize(
-//					R.styleable.CircularProgress_padding_progress, 0);
+			// mPaddingProgress = attr.getDimensionPixelSize(
+			// R.styleable.CircularProgress_padding_progress, 0);
 			mStrokeWidth = attr.getDimensionPixelSize(
 					R.styleable.CircularProgress_stroke_width, 4);
-//			mSize = attr.getDimensionPixelSize(
-//					R.styleable.CircularProgress_size, 64);
+			// mSize = attr.getDimensionPixelSize(
+			// R.styleable.CircularProgress_size, 64);
 			mIndeterminateProgressMode = attr.getBoolean(
 					R.styleable.CircularProgress_indeterminate, false);
 
@@ -102,7 +102,7 @@ public class CircularProgress extends View {
 					.getDrawable(R.drawable.background).mutate();
 			background.setStroke(mStrokeWidth, mColorIndicatorBackground);
 			background.setColor(mColorProgress);
-//			background.setCornerRadius(mSize / 2);
+			// background.setCornerRadius(mSize / 2);
 			setBackgroundCompat(background);
 		} finally {
 			attr.recycle();
@@ -116,13 +116,12 @@ public class CircularProgress extends View {
 		int height = MeasureSpec.getSize(heightMeasureSpec);
 
 		mSize = width < height ? width : height;
-		if (background != null){
+		if (background != null) {
 			background.setCornerRadius(mSize / 2);
 		}
-		
-		int sizeSpec = MeasureSpec.makeMeasureSpec(mSize,
-				MeasureSpec.EXACTLY);
-		
+
+		int sizeSpec = MeasureSpec.makeMeasureSpec(mSize, MeasureSpec.EXACTLY);
+
 		super.onMeasure(sizeSpec, sizeSpec);
 	}
 
@@ -140,7 +139,7 @@ public class CircularProgress extends View {
 		return mProgress;
 	}
 
-	private final long DEFAULT_ANIM_SPEED = 15;
+	private final float DEFAULT_ANIM_SPEED = 0.6f;
 	private Animator mAnimator;
 
 	/**
@@ -156,14 +155,14 @@ public class CircularProgress extends View {
 	 * smoothly animate to that value
 	 * 
 	 * @param progress
-	 * @param duration
+	 * @param speed default speed is 0.6f
 	 */
-	public void setProgress(int progress, long speed) {
+	public void setProgress(int progress, float speed) {
 		if (mAnimator != null) {
 			mAnimator.cancel();
 			mAnimator = null;
 		}
-		long duration = speed*Math.abs(progress-mProgress);
+		long duration = (long) (Math.abs(progress - mProgress) * 10 / speed);
 		ValueAnimator progressAnimation = ValueAnimator.ofInt(this.mProgress,
 				progress);
 		progressAnimation.setDuration(duration);
