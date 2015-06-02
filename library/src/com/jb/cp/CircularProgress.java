@@ -139,11 +139,11 @@ public class CircularProgress extends View {
 		return mProgress;
 	}
 
-	private final float DEFAULT_ANIM_SPEED = 0.6f;
+	private final float DEFAULT_ANIM_SPEED = 0.06f;
 	private Animator mAnimator;
 
 	/**
-	 * smoothly animate to that value
+	 * smoothly animate to that value with default speed 0.06f
 	 * 
 	 * @param progress
 	 */
@@ -155,14 +155,15 @@ public class CircularProgress extends View {
 	 * smoothly animate to that value
 	 * 
 	 * @param progress
-	 * @param speed default speed is 0.6f
+	 * @param speed
+	 *            default speed is 0.06f
 	 */
 	public void setProgress(int progress, float speed) {
 		if (mAnimator != null) {
 			mAnimator.cancel();
 			mAnimator = null;
 		}
-		long duration = (long) (Math.abs(progress - mProgress) * 10 / speed);
+		long duration = (long) (Math.abs(progress - mProgress) / speed);
 		ValueAnimator progressAnimation = ValueAnimator.ofInt(this.mProgress,
 				progress);
 		progressAnimation.setDuration(duration);
