@@ -2,15 +2,15 @@
 
 circular progress
 
-##Preview
+## Preview
 
 ![preview](./images/preview.gif)
 
 ![preview](./images/preview_indeterminate.gif)
 
-##Usage
+## Usage
 
-###xml
+### xml
 
 You can create circular progress in xml like this(remeber to add xmlns:app="http://schemas.android.com/apk/res-auto"):
 
@@ -43,7 +43,7 @@ And here are all the attributes
 
 ```
 
-###java
+### java
 
 You have two methods for setting the progress:
 
